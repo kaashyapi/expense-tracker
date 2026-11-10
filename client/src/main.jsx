@@ -23,9 +23,7 @@ async function startApp() {
   }
 
   const isConfigured = Boolean(clientId && !clientId.includes('dummy'))
-  const activeClientId = isConfigured
-    ? clientId
-    : '783092088397-l23dpcb8edam3fnvr3tc7mq7b8norvjn.apps.googleusercontent.com'
+  const activeClientId = isConfigured ? clientId : 'dummy-client-id.apps.googleusercontent.com'
 
   ReactDOM.createRoot(document.getElementById('root')).render(
     <React.StrictMode>
