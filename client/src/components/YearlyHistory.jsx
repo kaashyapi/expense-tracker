@@ -6,7 +6,8 @@ export default function YearlyHistory({
   allExpenses = [],
   categories = [],
   loading = false,
-  onSelectExpense
+  onSelectExpense,
+  currencySymbol = '€'
 }) {
   const currentYear = new Date().getFullYear().toString(); // e.g. 2026
   const [selectedYear, setSelectedYear] = useState(currentYear);
@@ -67,10 +68,11 @@ export default function YearlyHistory({
         emptyMessage={`No expenses recorded for ${selectedYear}.`}
         showFilters={true}
         defaultPageSize={10}
+        currencySymbol={currencySymbol}
         headerExtra={
           <div className="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-[#18181b] border border-[#27272a] text-xs font-mono text-white">
             <span className="text-[#71717a]">Total:</span>
-            <span>€{totalYearAmount.toFixed(2)}</span>
+            <span>{currencySymbol}{totalYearAmount.toFixed(2)}</span>
           </div>
         }
       />

@@ -73,7 +73,10 @@ export const api = {
   }),
 
   // Expenses
-  getRecentExpenses: () => request('/expenses/recent'),
+  getRecentExpenses: (currency) => {
+    const qs = (currency && currency !== 'ALL') ? `?currency=${currency}` : '';
+    return request(`/expenses/recent${qs}`);
+  },
   getExpenses: (params = {}) => {
     const query = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
@@ -83,9 +86,12 @@ export const api = {
     });
     return request(`/expenses?${query.toString()}`);
   },
-  getMonthlySummary: (year) => {
-    const query = year ? `?year=${year}` : '';
-    return request(`/expenses/monthly-summary${query}`);
+  getMonthlySummary: (year, currency) => {
+    const params = new URLSearchParams();
+    if (year) params.append('year', year);
+    if (currency && currency !== 'ALL') params.append('currency', currency);
+    const qs = params.toString();
+    return request(`/expenses/monthly-summary${qs ? `?${qs}` : ''}`);
   },
   createExpense: (data) => request('/expenses', {
     method: 'POST',

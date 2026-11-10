@@ -14,6 +14,7 @@ export default function DataTable({
   defaultSortBy = 'date',
   defaultSortOrder = 'desc',
   headerExtra = null,
+  currencySymbol = '€',
 }) {
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('ALL');
@@ -200,7 +201,7 @@ export default function DataTable({
                 {/* Min / Max Amount */}
                 <div className="flex space-x-1.5">
                   <div className="flex-1">
-                    <label className="block text-[11px] font-medium text-[#a1a1aa] mb-1">Min (€)</label>
+                    <label className="block text-[11px] font-medium text-[#a1a1aa] mb-1">Min ({currencySymbol})</label>
                     <input
                       type="number"
                       placeholder="0"
@@ -210,7 +211,7 @@ export default function DataTable({
                     />
                   </div>
                   <div className="flex-1">
-                    <label className="block text-[11px] font-medium text-[#a1a1aa] mb-1">Max (€)</label>
+                    <label className="block text-[11px] font-medium text-[#a1a1aa] mb-1">Max ({currencySymbol})</label>
                     <input
                       type="number"
                       placeholder="Any"
@@ -337,7 +338,7 @@ export default function DataTable({
                     </span>
                   </td>
                   <td className="py-2.5 px-3 sm:py-3 sm:px-4 text-right whitespace-nowrap font-mono font-semibold text-white">
-                    €{Number(item.amount).toFixed(2)}
+                    {(item.currency === 'INR' ? '₹' : (item.currency === 'EUR' ? '€' : currencySymbol))}{Number(item.amount).toFixed(2)}
                   </td>
                   <td className="py-2.5 px-3 sm:py-3 sm:px-4 text-center">
                     <button

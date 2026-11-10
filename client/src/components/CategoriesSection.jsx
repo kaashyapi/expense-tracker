@@ -5,7 +5,8 @@ export default function CategoriesSection({
   categories = [],
   categoryStats = {},
   onOpenAddCategory,
-  onSelectCategoryFilter
+  onSelectCategoryFilter,
+  currencySymbol = '€'
 }) {
   return (
     <section className="space-y-3">
@@ -57,7 +58,7 @@ export default function CategoriesSection({
                       {cat.name}
                     </div>
                     <div className="text-[11px] text-[#71717a] mt-0.5 font-mono">
-                      €{Number(stat.total || 0).toFixed(2)} • {stat.count || 0}
+                      {currencySymbol}{Number(stat.total || 0).toFixed(2)} • {stat.count || 0}
                     </div>
                   </div>
                 </div>

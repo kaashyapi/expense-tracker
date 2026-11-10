@@ -6,7 +6,8 @@ export default function RecentExpenses({
   expenses = [],
   categories = [],
   loading = false,
-  onSelectExpense
+  onSelectExpense,
+  currencySymbol = '€',
 }) {
   // Sort strictly by created date/time descending so newly logged records are at the top
   const sortedRecentExpenses = useMemo(() => {
@@ -35,6 +36,7 @@ export default function RecentExpenses({
         defaultPageSize={7}
         defaultSortBy="created_at"
         defaultSortOrder="desc"
+        currencySymbol={currencySymbol}
       />
     </section>
   );

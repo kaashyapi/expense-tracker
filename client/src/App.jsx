@@ -17,6 +17,18 @@ export default function App({ isGoogleConfigured = false }) {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isCheckingOnline, setIsCheckingOnline] = useState(false);
 
+  // Active currency tab ('EUR' or 'INR')
+  const [selectedCurrency, setSelectedCurrency] = useState(() => {
+    return localStorage.getItem('et_selected_currency') || 'EUR';
+  });
+
+  const handleSelectCurrency = (newCurrency) => {
+    setSelectedCurrency(newCurrency);
+    localStorage.setItem('et_selected_currency', newCurrency);
+  };
+
+  const currencySymbol = selectedCurrency === 'INR' ? '₹' : '€';
+
   // Data states
   const [categories, setCategories] = useState([]);
   const [remainingEmojis, setRemainingEmojis] = useState([]);
@@ -77,15 +89,15 @@ export default function App({ isGoogleConfigured = false }) {
   }, [verifyConnectivity]);
 
   // Load user data when authenticated & online
-  const refreshAllData = useCallback(async () => {
+  const refreshAllData = useCallback(async (currencyToUse = selectedCurrency) => {
     if (!token) return;
     try {
       setLoadingData(true);
       const [catsRes, recentsRes, allRes, monthlyRes] = await Promise.all([
         api.getCategories(),
-        api.getRecentExpenses(),
-        api.getExpenses({ page_size: 100 }), // recent 100 for tables
-        api.getMonthlySummary(),
+        api.getRecentExpenses(currencyToUse),
+        api.getExpenses({ page_size: 100, currency: currencyToUse }), // recent 100 for tables
+        api.getMonthlySummary(undefined, currencyToUse),
       ]);
 
       setCategories(catsRes.categories || []);
@@ -98,13 +110,13 @@ export default function App({ isGoogleConfigured = false }) {
     } finally {
       setLoadingData(false);
     }
-  }, [token]);
+  }, [token, selectedCurrency]);
 
   useEffect(() => {
     if (token && isOnline) {
-      refreshAllData();
+      refreshAllData(selectedCurrency);
     }
-  }, [token, isOnline, refreshAllData]);
+  }, [token, isOnline, selectedCurrency, refreshAllData]);
 
   // Handle Login
   const handleLogin = async (payload) => {
@@ -130,7 +142,12 @@ export default function App({ isGoogleConfigured = false }) {
     try {
       await api.createExpense(expenseData);
       setIsAddExpenseOpen(false);
-      await refreshAllData();
+      // If the expense was added with a different currency than current view, switch to it
+      if (expenseData.currency && expenseData.currency !== selectedCurrency) {
+        handleSelectCurrency(expenseData.currency);
+      } else {
+        await refreshAllData();
+      }
     } finally {
       setIsSubmittingExpense(false);
     }
@@ -196,6 +213,8 @@ export default function App({ isGoogleConfigured = false }) {
       {/* Sticky Header */}
       <Header
         user={user}
+        selectedCurrency={selectedCurrency}
+        onSelectCurrency={handleSelectCurrency}
         onOpenAddExpense={() => setIsAddExpenseOpen(true)}
         onLogout={handleLogout}
       />
@@ -217,12 +236,14 @@ export default function App({ isGoogleConfigured = false }) {
           categories={categories}
           loading={loadingData}
           onSelectExpense={(item) => setSelectedExpense(item)}
+          currencySymbol={currencySymbol}
         />
 
         {/* 2. Categories with + icon on top right to add new */}
         <CategoriesSection
           categories={categories}
           categoryStats={categoryStats}
+          currencySymbol={currencySymbol}
           onOpenAddCategory={() => setIsAddCategoryOpen(true)}
           onSelectCategoryFilter={(catName) => {
             // Scroll to yearly history or monthly
@@ -238,6 +259,7 @@ export default function App({ isGoogleConfigured = false }) {
           categories={categories}
           loading={loadingData}
           onSelectExpense={(item) => setSelectedExpense(item)}
+          currencySymbol={currencySymbol}
         />
 
         {/* 4. Yearly History with Global DataTable Filters */}
@@ -247,6 +269,7 @@ export default function App({ isGoogleConfigured = false }) {
             categories={categories}
             loading={loadingData}
             onSelectExpense={(item) => setSelectedExpense(item)}
+            currencySymbol={currencySymbol}
           />
         </div>
 
@@ -259,6 +282,8 @@ export default function App({ isGoogleConfigured = false }) {
         categories={categories}
         onAddExpense={handleAddExpense}
         isSubmitting={isSubmittingExpense}
+        defaultCurrency={selectedCurrency}
+        isFirstExpense={allExpenses.length === 0 && recentExpenses.length === 0}
       />
 
       <ExpenseDetailModal

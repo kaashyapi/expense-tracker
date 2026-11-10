@@ -1,10 +1,16 @@
 import React from 'react';
 import { Plus, LogOut, Wallet } from 'lucide-react';
 
-export default function Header({ user, onOpenAddExpense, onLogout }) {
+export default function Header({
+  user,
+  selectedCurrency = 'EUR',
+  onSelectCurrency,
+  onOpenAddExpense,
+  onLogout
+}) {
   return (
     <header className="sticky top-0 z-40 w-full border-b border-[#1f1f23] bg-black/90 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2 sm:gap-4">
         
         {/* Left: Brand Heading */}
         <div className="flex items-center space-x-2 sm:space-x-3 shrink-0">
@@ -12,8 +18,36 @@ export default function Header({ user, onOpenAddExpense, onLogout }) {
             <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </div>
           <h1 className="text-sm sm:text-lg font-semibold tracking-tight text-white whitespace-nowrap">
-            Expense Tracker
+            <span className="hidden sm:inline">Expense </span>Tracker
           </h1>
+        </div>
+
+        {/* Center: Currency Switcher Tabs */}
+        <div className="flex items-center p-0.5 sm:p-1 bg-[#121214] border border-[#27272a] rounded-lg shrink-0">
+          <button
+            type="button"
+            onClick={() => onSelectCurrency && onSelectCurrency('EUR')}
+            className={`px-2.5 sm:px-3 py-1 text-xs font-medium rounded-md transition-all ${
+              selectedCurrency === 'EUR'
+                ? 'bg-[#27272a] text-white shadow-sm font-semibold'
+                : 'text-[#71717a] hover:text-[#d4d4d8]'
+            }`}
+            title="Switch to Euro (€) view"
+          >
+            EUR €
+          </button>
+          <button
+            type="button"
+            onClick={() => onSelectCurrency && onSelectCurrency('INR')}
+            className={`px-2.5 sm:px-3 py-1 text-xs font-medium rounded-md transition-all ${
+              selectedCurrency === 'INR'
+                ? 'bg-[#27272a] text-white shadow-sm font-semibold'
+                : 'text-[#71717a] hover:text-[#d4d4d8]'
+            }`}
+            title="Switch to Indian Rupee (₹) view"
+          >
+            INR ₹
+          </button>
         </div>
 
         {/* Right: Actions & User Info */}

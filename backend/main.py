@@ -192,11 +192,16 @@ async def add_category(payload: CategoryCreate, current_user: dict = Depends(get
 
 # ----------------- Expenses -----------------
 @app.get("/api/expenses/recent")
-async def get_recent_expenses(current_user: dict = Depends(get_current_user)):
+async def get_recent_expenses(
+    current_user: dict = Depends(get_current_user),
+    currency: Optional[str] = None
+):
     """Returns top 7 recent logged expenses for the authenticated user."""
-    cursor = expenses_collection.find(
-        {"user_id": current_user["user_id"]}
-    ).sort("created_at", -1).limit(7)
+    query = {"user_id": current_user["user_id"]}
+    if currency and currency != "ALL":
+        query["currency"] = currency
+
+    cursor = expenses_collection.find(query).sort("created_at", -1).limit(7)
 
     items = []
     async for doc in cursor:
@@ -220,6 +225,7 @@ async def list_expenses(
     month: Optional[str] = Query(None, description="Format: YYYY-MM"),
     year: Optional[str] = Query(None, description="Format: YYYY"),
     category: Optional[str] = None,
+    currency: Optional[str] = None,
     search: Optional[str] = None,
     min_amount: Optional[float] = None,
     max_amount: Optional[float] = None,
@@ -231,6 +237,9 @@ async def list_expenses(
     sort_order: str = Query("desc")
 ):
     query = {"user_id": current_user["user_id"]}
+
+    if currency and currency != "ALL":
+        query["currency"] = currency
 
     if month:
         query["date"] = {"$regex": f"^{month}"}
@@ -312,7 +321,8 @@ async def list_expenses(
 @app.get("/api/expenses/monthly-summary")
 async def get_monthly_summary(
     current_user: dict = Depends(get_current_user),
-    year: Optional[int] = Query(None)
+    year: Optional[int] = Query(None),
+    currency: Optional[str] = Query(None)
 ):
     """
     Returns monthly summary up to 12 months starting from current month downwards.
@@ -340,6 +350,8 @@ async def get_monthly_summary(
         "user_id": current_user["user_id"],
         "date": {"$regex": f"^{target_year}-"}
     }
+    if currency and currency != "ALL":
+        query["currency"] = currency
     expenses = await expenses_collection.find(query).to_list(length=10000)
 
     # Group by month and category

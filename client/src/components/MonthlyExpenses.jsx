@@ -7,7 +7,8 @@ export default function MonthlyExpenses({
   allExpenses = [],
   categories = [],
   loading = false,
-  onSelectExpense
+  onSelectExpense,
+  currencySymbol = '€'
 }) {
   // Default to the first month in list (which is current month e.g., Nov 2026)
   const [activeMonthKey, setActiveMonthKey] = useState(null);
@@ -50,7 +51,7 @@ export default function MonthlyExpenses({
                 )}
               </div>
               <div className="text-[11px] font-mono mt-1 text-[#d4d4d8]">
-                €{Number(m.total_amount || 0).toFixed(2)}
+                {currencySymbol}{Number(m.total_amount || 0).toFixed(2)}
               </div>
             </button>
           );
@@ -69,7 +70,7 @@ export default function MonthlyExpenses({
               <div className="flex items-center space-x-2">
                 <span className="text-xs text-[#71717a]">Total:</span>
                 <span className="text-sm font-mono font-bold text-white">
-                  €{Number(activeSummary.total_amount || 0).toFixed(2)}
+                  {currencySymbol}{Number(activeSummary.total_amount || 0).toFixed(2)}
                 </span>
               </div>
             </div>
@@ -90,7 +91,7 @@ export default function MonthlyExpenses({
                       <span>{cat.emoji}</span>
                       <span className="text-white font-medium">{cat.category}</span>
                       <span className="font-mono text-[#a1a1aa] pl-1 border-l border-[#27272a]">
-                        €{Number(cat.total).toFixed(2)}
+                        {currencySymbol}{Number(cat.total).toFixed(2)}
                       </span>
                     </div>
                   ))}
@@ -109,6 +110,7 @@ export default function MonthlyExpenses({
             emptyMessage="No expenses for this month."
             showFilters={true}
             defaultPageSize={5}
+            currencySymbol={currencySymbol}
           />
         </div>
       )}

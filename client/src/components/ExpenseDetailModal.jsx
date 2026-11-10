@@ -13,6 +13,7 @@ export default function ExpenseDetailModal({
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState('');
   const [categoryName, setCategoryName] = useState('');
+  const [currency, setCurrency] = useState('EUR');
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState('');
   const [notes, setNotes] = useState('');
@@ -24,6 +25,7 @@ export default function ExpenseDetailModal({
     if (expense) {
       setTitle(expense.title || '');
       setCategoryName(expense.category || categories[0]?.name || '');
+      setCurrency(expense.currency || 'EUR');
       setAmount(expense.amount ? expense.amount.toString() : '');
       setDate(expense.date || '');
       setNotes(expense.notes || '');
@@ -60,7 +62,7 @@ export default function ExpenseDetailModal({
         category: categoryName,
         category_emoji: categoryEmoji,
         amount: numAmount,
-        currency: expense.currency || 'EUR',
+        currency: currency || 'EUR',
         date,
         notes: notes.trim(),
       });
@@ -118,6 +120,37 @@ export default function ExpenseDetailModal({
           {isEditing ? (
             /* Editing Form */
             <form onSubmit={handleSave} className="space-y-3.5">
+              {/* Currency Toggle */}
+              <div>
+                <label className="block text-xs font-medium text-[#a1a1aa] mb-1.5">Currency</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCurrency('EUR')}
+                    className={`py-1 px-3 rounded-lg border text-xs font-medium flex items-center justify-center space-x-1.5 transition-all ${
+                      currency === 'EUR'
+                        ? 'bg-white text-black border-white shadow-sm font-semibold'
+                        : 'bg-black text-[#a1a1aa] border-[#27272a] hover:border-[#3f3f46] hover:text-white'
+                    }`}
+                  >
+                    <span>€</span>
+                    <span>EUR</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setCurrency('INR')}
+                    className={`py-1 px-3 rounded-lg border text-xs font-medium flex items-center justify-center space-x-1.5 transition-all ${
+                      currency === 'INR'
+                        ? 'bg-white text-black border-white shadow-sm font-semibold'
+                        : 'bg-black text-[#a1a1aa] border-[#27272a] hover:border-[#3f3f46] hover:text-white'
+                    }`}
+                  >
+                    <span>₹</span>
+                    <span>INR</span>
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-xs font-medium text-[#a1a1aa] mb-1">Title</label>
                 <input
@@ -145,7 +178,9 @@ export default function ExpenseDetailModal({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#a1a1aa] mb-1">Amount (€)</label>
+                  <label className="block text-xs font-medium text-[#a1a1aa] mb-1">
+                    Amount ({currency === 'INR' ? '₹' : '€'})
+                  </label>
                   <input
                     type="number"
                     step="0.01"
@@ -197,16 +232,21 @@ export default function ExpenseDetailModal({
           ) : (
             /* Read-only View */
             <div className="space-y-4">
-              <div className="p-3 bg-[#121214] border border-[#222226] rounded-lg">
-                <div className="text-xs text-[#71717a]">Title</div>
-                <div className="text-sm font-semibold text-white mt-0.5">{expense.title}</div>
+              <div className="p-3 bg-[#121214] border border-[#222226] rounded-lg flex items-center justify-between">
+                <div>
+                  <div className="text-xs text-[#71717a]">Title</div>
+                  <div className="text-sm font-semibold text-white mt-0.5">{expense.title}</div>
+                </div>
+                <div className="px-2 py-0.5 rounded bg-[#18181b] border border-[#27272a] text-[11px] font-mono text-[#a1a1aa]">
+                  {expense.currency || 'EUR'}
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 <div className="p-3 bg-[#121214] border border-[#222226] rounded-lg">
                   <div className="text-xs text-[#71717a]">Amount</div>
                   <div className="text-base font-bold font-mono text-white mt-0.5">
-                    €{Number(expense.amount).toFixed(2)}
+                    {(expense.currency === 'INR' ? '₹' : '€')}{Number(expense.amount).toFixed(2)}
                   </div>
                 </div>
                 <div className="p-3 bg-[#121214] border border-[#222226] rounded-lg">

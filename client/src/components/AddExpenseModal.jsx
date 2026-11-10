@@ -7,10 +7,13 @@ export default function AddExpenseModal({
   onClose,
   categories = [],
   onAddExpense,
-  isSubmitting = false
+  isSubmitting = false,
+  defaultCurrency = 'EUR',
+  isFirstExpense = false,
 }) {
   const [title, setTitle] = useState('');
   const [categoryName, setCategoryName] = useState(categories[0]?.name || 'Groceries');
+  const [currency, setCurrency] = useState(defaultCurrency);
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(getTodayLocalString());
   const [notes, setNotes] = useState('');
@@ -23,12 +26,13 @@ export default function AddExpenseModal({
       setTitle('');
       setAmount('');
       setNotes('');
+      setCurrency(defaultCurrency);
       setError('');
       if (categories.length > 0 && !categories.some(c => c.name === categoryName)) {
         setCategoryName(categories[0].name);
       }
     }
-  }, [isOpen, categories]);
+  }, [isOpen, categories, defaultCurrency]);
 
   if (!isOpen) return null;
 
@@ -74,7 +78,7 @@ export default function AddExpenseModal({
         category: categoryName,
         category_emoji: categoryEmoji,
         amount: numAmount,
-        currency: 'EUR',
+        currency: currency || 'EUR',
         date: date.trim(),
         notes: notes.trim(),
       });
@@ -110,11 +114,57 @@ export default function AddExpenseModal({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-4 sm:p-5 space-y-3.5 sm:space-y-4 overflow-y-auto">
+          {/* First expense prompt */}
+          {isFirstExpense && (
+            <div className="p-3 rounded-lg bg-[#18181b] border border-[#27272a] text-xs space-y-1">
+              <div className="font-semibold text-white flex items-center justify-between">
+                <span>Select Currency</span>
+                <span className="text-[10px] text-[#4ade80] font-mono uppercase px-1.5 py-0.5 rounded bg-[#1f2937]">First Entry</span>
+              </div>
+              <p className="text-[#a1a1aa] leading-relaxed">
+                Default currency is <strong>EUR (€)</strong>. Switch to <strong>INR (₹)</strong> below if you prefer, or toggle between them anytime at the top bar.
+              </p>
+            </div>
+          )}
+
           {error && (
             <div className="p-2.5 rounded-lg bg-[#270e0e] border border-[#4a1818] text-xs text-[#fca5a5]">
               {error}
             </div>
           )}
+
+          {/* Currency Toggle */}
+          <div>
+            <label className="block text-xs font-medium text-[#a1a1aa] mb-1.5">
+              Currency
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setCurrency('EUR')}
+                className={`py-1.5 px-3 rounded-lg border text-xs font-medium flex items-center justify-center space-x-1.5 transition-all ${
+                  currency === 'EUR'
+                    ? 'bg-white text-black border-white shadow-sm font-semibold'
+                    : 'bg-black text-[#a1a1aa] border-[#27272a] hover:border-[#3f3f46] hover:text-white'
+                }`}
+              >
+                <span className="font-semibold">€</span>
+                <span>EUR (Euro)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrency('INR')}
+                className={`py-1.5 px-3 rounded-lg border text-xs font-medium flex items-center justify-center space-x-1.5 transition-all ${
+                  currency === 'INR'
+                    ? 'bg-white text-black border-white shadow-sm font-semibold'
+                    : 'bg-black text-[#a1a1aa] border-[#27272a] hover:border-[#3f3f46] hover:text-white'
+                }`}
+              >
+                <span className="font-semibold">₹</span>
+                <span>INR (Rupee)</span>
+              </button>
+            </div>
+          </div>
 
           {/* Title */}
           <div>
@@ -159,11 +209,11 @@ export default function AddExpenseModal({
             {/* Amount */}
             <div>
               <label className="block text-xs font-medium text-[#a1a1aa] mb-1">
-                Amount (€ EUR) <span className="text-red-400">*</span>
+                Amount ({currency === 'INR' ? '₹ INR' : '€ EUR'}) <span className="text-red-400">*</span>
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#71717a] text-xs font-mono">
-                  €
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[#71717a] text-xs font-mono font-medium">
+                  {currency === 'INR' ? '₹' : '€'}
                 </span>
                 <input
                   type="number"
