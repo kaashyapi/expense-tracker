@@ -9,7 +9,9 @@ async function startApp() {
 
   // Dynamically query API config from FastAPI backend if available
   try {
-    const res = await fetch('/api/auth/config')
+    const backendBase = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
+    const configUrl = backendBase ? `${backendBase}/api/auth/config` : '/api/auth/config'
+    const res = await fetch(configUrl)
     if (res.ok) {
       const data = await res.json()
       if (data.google_client_id) {
