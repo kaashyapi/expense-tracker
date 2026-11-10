@@ -1,0 +1,23 @@
+# Security: Never commit secret credentials
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+env/
+*.egg-info/
+
+# Frontend dependencies
+node_modules/
+client/node_modules/
+client/.vite/
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
